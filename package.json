@@ -1,0 +1,16 @@
+{
+  "name": "github-automation-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Event-Driven GitHub Automation Bot - signs in with GitHub, reacts to repo webhooks, writes back to GitHub, notifies Slack, runs AI triage, and shows a live dashboard.",
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  }
+}
