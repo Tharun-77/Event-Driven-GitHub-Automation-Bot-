@@ -13,6 +13,10 @@ export const envSchema = z.object({
   WEB_ORIGIN: z.string().url().default('http://localhost:3000'),
   API_BASE_URL: z.string().url().default('http://localhost:4000'),
 
+  // Session
+  JWT_SECRET: z.string().optional(),
+  SESSION_COOKIE_NAME: z.string().default('gha_session'),
+
   // GitHub App (one app: user OAuth sign-in + installation tokens).
   // Optional during local build; required at deploy. Services guard at call time.
   GITHUB_APP_ID: z.string().optional(),

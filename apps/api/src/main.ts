@@ -6,6 +6,14 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 
+// GitHub numeric IDs are stored as BigInt; make them JSON-serializable as strings
+// so any response containing them does not throw "Do not know how to serialize a BigInt".
+(BigInt.prototype as unknown as { toJSON: () => string }).toJSON = function (
+  this: bigint,
+): string {
+  return this.toString();
+};
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
