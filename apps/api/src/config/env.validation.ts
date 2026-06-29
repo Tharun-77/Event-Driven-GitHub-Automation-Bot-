@@ -17,6 +17,9 @@ export const envSchema = z.object({
   JWT_SECRET: z.string().optional(),
   SESSION_COOKIE_NAME: z.string().default('gha_session'),
 
+  // Redis (BullMQ queue)
+  REDIS_URL: z.string().optional(),
+
   // GitHub App (one app: user OAuth sign-in + installation tokens).
   // Optional during local build; required at deploy. Services guard at call time.
   GITHUB_APP_ID: z.string().optional(),
@@ -24,6 +27,7 @@ export const envSchema = z.object({
   GITHUB_APP_CLIENT_ID: z.string().optional(),
   GITHUB_APP_CLIENT_SECRET: z.string().optional(),
   GITHUB_APP_PRIVATE_KEY_BASE64: z.string().optional(),
+  GITHUB_WEBHOOK_SECRET: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -3,7 +3,8 @@ import { verifySignature } from './verify-signature';
 
 const secret = 'topsecret';
 const body = Buffer.from(JSON.stringify({ hello: 'world' }));
-const good = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex');
+const good =
+  'sha256=' + createHmac('sha256', secret).update(body).digest('hex');
 
 describe('verifySignature', () => {
   it('accepts a valid signature', () => {

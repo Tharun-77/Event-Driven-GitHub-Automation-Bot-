@@ -5,6 +5,7 @@ import { validateEnv } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepositoriesModule } from './repositories/repositories.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RepositoriesModule } from './repositories/repositories.module';
     HealthModule,
     AuthModule,
     RepositoriesModule,
+    WebhooksModule,
   ],
 })
 export class AppModule {}

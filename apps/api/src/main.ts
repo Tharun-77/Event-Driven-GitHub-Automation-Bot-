@@ -15,7 +15,8 @@ import { AppModule } from './app.module';
 };
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  // rawBody: true exposes req.rawBody for webhook HMAC verification.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   const config = app.get(ConfigService);
 
   // Helmet for security headers. CSP is disabled so the Swagger UI loads; the API
