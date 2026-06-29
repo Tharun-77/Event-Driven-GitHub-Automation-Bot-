@@ -1,0 +1,92 @@
+// Prisma schema for the Event-Driven GitHub Automation Bot.
+// Data model per design spec section 6.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  githubUserId  BigInt         @unique
+  login         String
+  avatarUrl     String?
+  createdAt     DateTime       @default(now())
+  installations Installation[]
+  repositories  Repository[]
+}
+
+model Installation {
+  id                   String       @id @default(cuid())
+  githubInstallationId BigInt       @unique
+  userId               String
+  user                 User         @relation(fields: [userId], references: [id])
+  createdAt            DateTime     @default(now())
+  repositories         Repository[]
+}
+
+model Repository {
+  id             String       @id @default(cuid())
+  githubRepoId   BigInt       @unique
+  fullName       String
+  installationId String
+  installation   Installation @relation(fields: [installationId], references: [id])
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  rules          Rule[]
+  events         Event[]
+}
+
+model Rule {
+  id           String     @id @default(cuid())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  name         String
+  eventType    String // issues | pull_request | push
+  matchField   String // title | body | author | label
+  matchOp      String // contains | equals
+  matchValue   String
+  actions      Json // { addLabel?, labelName?, postComment?, commentBody?, slackNotify? }
+  enabled      Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+
+  @@index([repositoryId])
+}
+
+model Event {
+  id             String      @id @default(cuid())
+  deliveryId     String      @unique
+  repositoryId   String?
+  repository     Repository? @relation(fields: [repositoryId], references: [id])
+  eventType      String
+  action         String?
+  payloadSummary Json
+  status         String      @default("pending") // pending | processing | done | failed | dead_letter
+  attempts       Int         @default(0)
+  aiTriage       Json?
+  receivedAt     DateTime    @default(now())
+  processedAt    DateTime?
+  error          String?
+  actionLogs     ActionLog[]
+
+  @@index([repositoryId, receivedAt])
+  @@index([status])
+}
+
+model ActionLog {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  type      String // label_added | comment_posted | slack_sent | ai_triage
+  status    String // success | failed
+  detail    Json
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+}
