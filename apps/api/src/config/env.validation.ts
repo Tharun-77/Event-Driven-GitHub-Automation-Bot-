@@ -28,6 +28,9 @@ export const envSchema = z.object({
   GITHUB_APP_CLIENT_SECRET: z.string().optional(),
   GITHUB_APP_PRIVATE_KEY_BASE64: z.string().optional(),
   GITHUB_WEBHOOK_SECRET: z.string().optional(),
+
+  // Slack
+  SLACK_WEBHOOK_URL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
