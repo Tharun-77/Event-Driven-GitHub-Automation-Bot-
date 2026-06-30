@@ -3,15 +3,18 @@ import { AiService } from './ai.service';
 function configWith(key: string | undefined) {
   return {
     get: (k: string) =>
-      k === 'GROQ_API_KEY' ? key : k === 'GROQ_MODEL' ? 'test-model' : undefined,
+      k === 'GROQ_API_KEY'
+        ? key
+        : k === 'GROQ_MODEL'
+          ? 'test-model'
+          : undefined,
   };
 }
 
 function groqResponse(content: string): Response {
-  return new Response(
-    JSON.stringify({ choices: [{ message: { content } }] }),
-    { status: 200 },
-  );
+  return new Response(JSON.stringify({ choices: [{ message: { content } }] }), {
+    status: 200,
+  });
 }
 
 describe('AiService', () => {
@@ -19,17 +22,15 @@ describe('AiService', () => {
 
   it('returns parsed triage on valid JSON content', async () => {
     const service = new AiService(configWith('key') as never);
-    jest
-      .spyOn(global, 'fetch')
-      .mockResolvedValue(
-        groqResponse(
-          JSON.stringify({
-            summary: 'login crash',
-            suggestedLabel: 'bug',
-            priority: 'high',
-          }),
-        ),
-      );
+    jest.spyOn(global, 'fetch').mockResolvedValue(
+      groqResponse(
+        JSON.stringify({
+          summary: 'login crash',
+          suggestedLabel: 'bug',
+          priority: 'high',
+        }),
+      ),
+    );
 
     const result = await service.triage({ title: 'crash', body: 'on login' });
 

@@ -23,10 +23,7 @@ export class AiService {
    * (missing key, HTTP error, bad JSON) so the worker degrades gracefully and
    * still performs labels/comments/Slack without AI.
    */
-  async triage(input: {
-    title: string;
-    body: string;
-  }): Promise<Triage | null> {
+  async triage(input: { title: string; body: string }): Promise<Triage | null> {
     const apiKey = this.config.get<string>('GROQ_API_KEY');
     if (!apiKey) {
       return null;

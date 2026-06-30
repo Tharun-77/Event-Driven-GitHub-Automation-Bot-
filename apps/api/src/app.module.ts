@@ -7,6 +7,7 @@ import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProcessingModule } from './queue/processing.module';
 import { RepositoriesModule } from './repositories/repositories.module';
+import { RulesModule } from './rules/rules.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
     AuthModule,
     EventsModule,
     RepositoriesModule,
+    RulesModule,
     WebhooksModule,
     ProcessingModule,
   ],
