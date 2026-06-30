@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Rule } from '@prisma/client';
+import { EventsEmitter } from '../events/events.emitter';
 import { GithubWritebackService } from '../github/github-writeback.service';
 import { extractFields, ruleMatches } from '../rules/rule-matcher';
 import { RuleActions } from '../rules/rule.types';
@@ -28,6 +29,7 @@ export class EventProcessor {
     private readonly prisma: PrismaService,
     private readonly writeback: GithubWritebackService,
     private readonly slack: SlackService,
+    private readonly emitter: EventsEmitter,
   ) {}
 
   /**
@@ -49,6 +51,7 @@ export class EventProcessor {
       where: { id: eventId },
       data: { status: 'processing', attempts: { increment: 1 } },
     });
+    this.emitter.emitChange(eventId);
 
     try {
       const payload = event.payload as ProcessPayload;
@@ -77,12 +80,14 @@ export class EventProcessor {
         where: { id: eventId },
         data: { status: 'done', processedAt: new Date(), error: null },
       });
+      this.emitter.emitChange(eventId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       await this.prisma.event.update({
         where: { id: eventId },
         data: { status: 'failed', error: message },
       });
+      this.emitter.emitChange(eventId);
       throw err;
     }
   }

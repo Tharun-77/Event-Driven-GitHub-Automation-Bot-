@@ -9,6 +9,7 @@ describe('EventProcessor', () => {
   };
   const writeback = { addLabel: jest.fn(), postComment: jest.fn() };
   const slack = { notify: jest.fn() };
+  const emitter = { emitChange: jest.fn() };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -18,6 +19,7 @@ describe('EventProcessor', () => {
       prisma as never,
       writeback as never,
       slack as never,
+      emitter as never,
     );
   });
 
