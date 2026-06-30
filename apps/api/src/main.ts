@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -16,8 +17,13 @@ import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
   // rawBody: true exposes req.rawBody for webhook HMAC verification.
-  const app = await NestFactory.create(AppModule, { rawBody: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   const config = app.get(ConfigService);
+
+  // Behind Render's proxy; required for Secure cookies to be honored.
+  app.set('trust proxy', 1);
 
   // Helmet for security headers. CSP is disabled so the Swagger UI loads; the API
   // serves JSON, not user-facing HTML, so CSP adds little here.

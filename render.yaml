@@ -1,0 +1,47 @@
+# Render Blueprint for the NestJS API (free tier, no card).
+# The Next.js UI deploys separately on Vercel.
+# Secrets (sync: false) are set in the Render dashboard, never committed.
+services:
+  - type: web
+    name: github-automation-bot-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @app/api prisma:generate && pnpm --filter @app/api build
+    startCommand: pnpm --filter @app/api start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_COOKIE_NAME
+        value: gha_session
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      # --- secrets / per-deploy values (set in the dashboard) ---
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
+      - key: API_BASE_URL
+        sync: false
+      - key: GITHUB_APP_ID
+        sync: false
+      - key: GITHUB_APP_SLUG
+        sync: false
+      - key: GITHUB_APP_CLIENT_ID
+        sync: false
+      - key: GITHUB_APP_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_APP_PRIVATE_KEY_BASE64
+        sync: false
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false
