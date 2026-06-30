@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
 import { ConnectRepo } from './ConnectRepo';
+import { EventLog } from './EventLog';
 import { Repo, RepoSwitcher } from './RepoSwitcher';
 
 interface Me {
@@ -114,10 +115,15 @@ export default function DashboardPage(): React.JSX.Element | null {
             repository&rdquo; to install the GitHub App on a repo you own.
           </p>
         ) : (
-          <p className="muted">
-            Showing activity for <strong>{activeRepo?.fullName}</strong>. The
-            live event log will appear here.
-          </p>
+          <>
+            <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>
+              Event log
+              {activeRepo ? (
+                <span className="muted"> &mdash; {activeRepo.fullName}</span>
+              ) : null}
+            </h2>
+            <EventLog repoId={activeRepoId} />
+          </>
         )}
       </section>
     </main>
