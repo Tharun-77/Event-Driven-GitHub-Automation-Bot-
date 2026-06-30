@@ -32,3 +32,6 @@ Thumbs.db
 
 # prisma
 apps/api/prisma/*.db
+
+# personal interview notes, local only
+EXPLANATION.md
