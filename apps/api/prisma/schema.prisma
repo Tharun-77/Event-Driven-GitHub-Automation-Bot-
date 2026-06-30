@@ -66,7 +66,8 @@ model Event {
   repository     Repository? @relation(fields: [repositoryId], references: [id])
   eventType      String
   action         String?
-  payloadSummary Json
+  payload        Json // full webhook payload (used by the worker for rules + write-back)
+  payloadSummary Json // compact, non-sensitive summary for the dashboard
   status         String      @default("pending") // pending | processing | done | failed | dead_letter
   attempts       Int         @default(0)
   aiTriage       Json?

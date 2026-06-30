@@ -20,7 +20,9 @@ export class SlackService {
   async notify(message: SlackMessage): Promise<void> {
     const url = this.config.get<string>('SLACK_WEBHOOK_URL');
     if (!url) {
-      this.logger.warn('SLACK_WEBHOOK_URL not set; skipping Slack notification');
+      this.logger.warn(
+        'SLACK_WEBHOOK_URL not set; skipping Slack notification',
+      );
       return;
     }
     const res = await fetch(url, {

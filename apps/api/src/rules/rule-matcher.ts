@@ -31,8 +31,9 @@ function labelNames(labels: Array<string | LabelLike> | undefined): string[] {
 /** Pulls the matchable fields out of a webhook payload for a given event type. */
 export function extractFields(
   eventType: string,
-  payload: PayloadShape,
+  rawPayload: unknown,
 ): ExtractedFields {
+  const payload = (rawPayload ?? {}) as PayloadShape;
   if (eventType === 'issues' && payload.issue) {
     return fromIssue(payload.issue);
   }

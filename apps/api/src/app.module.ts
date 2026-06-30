@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module';
 import { validateEnv } from './config/env.validation';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ProcessingModule } from './queue/processing.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 
@@ -18,6 +19,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
     AuthModule,
     RepositoriesModule,
     WebhooksModule,
+    ProcessingModule,
   ],
 })
 export class AppModule {}

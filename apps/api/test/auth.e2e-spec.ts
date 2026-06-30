@@ -12,22 +12,21 @@ describe('Auth (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    // Importing @prisma/client loads apps/api/.env into process.env, which
+    // outranks ConfigModule `load`. Set the values we need directly so the test
+    // is hermetic regardless of any local .env.
+    Object.assign(process.env, {
+      NODE_ENV: 'test',
+      JWT_SECRET: 'test-secret',
+      SESSION_COOKIE_NAME: 'gha_session',
+      WEB_ORIGIN: 'http://localhost:3000',
+      API_BASE_URL: 'http://localhost:4000',
+      GITHUB_APP_CLIENT_ID: 'Iv1.test',
+    });
+
     const moduleRef = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          ignoreEnvFile: true,
-          load: [
-            () => ({
-              NODE_ENV: 'test',
-              JWT_SECRET: 'test-secret',
-              SESSION_COOKIE_NAME: 'gha_session',
-              WEB_ORIGIN: 'http://localhost:3000',
-              API_BASE_URL: 'http://localhost:4000',
-              GITHUB_APP_CLIENT_ID: 'Iv1.test',
-            }),
-          ],
-        }),
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
         PrismaModule,
         AuthModule,
       ],

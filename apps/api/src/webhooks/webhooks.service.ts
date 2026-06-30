@@ -64,6 +64,7 @@ export class WebhooksService {
           eventType,
           action,
           repositoryId,
+          payload: payload as unknown as Prisma.InputJsonValue,
           payloadSummary: this.summarize(eventType, payload),
           status: 'pending',
         },

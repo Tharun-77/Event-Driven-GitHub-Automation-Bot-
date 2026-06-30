@@ -31,13 +31,13 @@ describe('Webhooks (e2e)', () => {
   const enqueueEvent = jest.fn();
 
   beforeAll(async () => {
+    // Importing @prisma/client loads apps/api/.env into process.env, which
+    // outranks ConfigModule `load`. Set the secret directly for a hermetic test.
+    process.env.GITHUB_WEBHOOK_SECRET = SECRET;
+
     const moduleRef = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          ignoreEnvFile: true,
-          load: [() => ({ GITHUB_WEBHOOK_SECRET: SECRET })],
-        }),
+        ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true }),
         PrismaModule,
         WebhooksModule,
       ],

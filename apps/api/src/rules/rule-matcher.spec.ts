@@ -31,7 +31,12 @@ describe('ruleMatches', () => {
   it('matches author equals', () => {
     expect(
       ruleMatches(
-        { ...base, matchField: 'author', matchOp: 'equals', matchValue: 'octocat' },
+        {
+          ...base,
+          matchField: 'author',
+          matchOp: 'equals',
+          matchValue: 'octocat',
+        },
         'issues',
         fields,
       ),
@@ -41,7 +46,12 @@ describe('ruleMatches', () => {
   it('matches a label equals against any label', () => {
     expect(
       ruleMatches(
-        { ...base, matchField: 'label', matchOp: 'equals', matchValue: 'urgent' },
+        {
+          ...base,
+          matchField: 'label',
+          matchOp: 'equals',
+          matchValue: 'urgent',
+        },
         'issues',
         fields,
       ),
@@ -79,7 +89,12 @@ describe('extractFields', () => {
 
   it('extracts pull_request fields', () => {
     const f = extractFields('pull_request', {
-      pull_request: { title: 'Fix', body: '', user: { login: 'bob' }, labels: [] },
+      pull_request: {
+        title: 'Fix',
+        body: '',
+        user: { login: 'bob' },
+        labels: [],
+      },
     });
     expect(f.title).toBe('Fix');
     expect(f.author).toBe('bob');
