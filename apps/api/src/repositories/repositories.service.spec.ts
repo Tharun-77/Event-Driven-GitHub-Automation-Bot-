@@ -16,6 +16,7 @@ describe('RepositoriesService', () => {
       findUnique: jest.fn(),
       update: jest.fn(),
     },
+    rule: { count: jest.fn().mockResolvedValue(1), create: jest.fn() },
   };
   const config = { get: jest.fn() };
 

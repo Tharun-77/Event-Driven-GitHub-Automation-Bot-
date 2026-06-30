@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { GithubAppService } from '../github/github-app.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -50,7 +51,7 @@ export class RepositoriesService {
     });
 
     for (const repo of repos) {
-      await this.prisma.repository.upsert({
+      const saved = await this.prisma.repository.upsert({
         where: { githubRepoId: BigInt(repo.id) },
         update: {
           fullName: repo.full_name,
@@ -65,9 +66,34 @@ export class RepositoriesService {
           userId,
         },
       });
+      await this.seedDefaultRule(saved.id);
     }
 
     return { count: repos.length };
+  }
+
+  /** On first connect, give the repo a working default rule so the demo runs. */
+  private async seedDefaultRule(repositoryId: string): Promise<void> {
+    const existing = await this.prisma.rule.count({ where: { repositoryId } });
+    if (existing > 0) {
+      return;
+    }
+    await this.prisma.rule.create({
+      data: {
+        repositoryId,
+        name: 'Bug triage (default)',
+        eventType: 'issues',
+        matchField: 'title',
+        matchOp: 'contains',
+        matchValue: 'bug',
+        actions: {
+          addLabel: true,
+          labelName: 'bug',
+          slackNotify: true,
+        } as Prisma.InputJsonValue,
+        enabled: true,
+      },
+    });
   }
 
   async listForUser(userId: string): Promise<RepoDto[]> {
