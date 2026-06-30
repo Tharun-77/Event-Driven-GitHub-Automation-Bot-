@@ -6,6 +6,7 @@ import { apiFetch } from '@/lib/api';
 import { ConnectRepo } from './ConnectRepo';
 import { EventLog } from './EventLog';
 import { Repo, RepoSwitcher } from './RepoSwitcher';
+import { RulesEditor } from './RulesEditor';
 
 interface Me {
   id: string;
@@ -126,6 +127,13 @@ export default function DashboardPage(): React.JSX.Element | null {
           </>
         )}
       </section>
+
+      {activeRepoId ? (
+        <section className="panel" style={{ marginTop: '1.5rem' }}>
+          <h2 style={{ marginTop: 0, fontSize: '1.1rem' }}>Rules</h2>
+          <RulesEditor repoId={activeRepoId} />
+        </section>
+      ) : null}
     </main>
   );
 }
