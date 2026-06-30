@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Rule } from '@prisma/client';
+import { Prisma, Rule } from '@prisma/client';
+import { AiService, Triage } from '../ai/ai.service';
 import { EventsEmitter } from '../events/events.emitter';
 import { GithubWritebackService } from '../github/github-writeback.service';
 import { extractFields, ruleMatches } from '../rules/rule-matcher';
@@ -19,6 +20,7 @@ interface ActionContext {
   eventType: string;
   title: string;
   issueNumber: number | null;
+  triage: Triage | null;
 }
 
 @Injectable()
@@ -30,6 +32,7 @@ export class EventProcessor {
     private readonly writeback: GithubWritebackService,
     private readonly slack: SlackService,
     private readonly emitter: EventsEmitter,
+    private readonly ai: AiService,
   ) {}
 
   /**
@@ -56,8 +59,15 @@ export class EventProcessor {
     try {
       const payload = event.payload as ProcessPayload;
       const fields = extractFields(event.eventType, payload);
-      const repo = event.repository;
 
+      const triage = await this.runTriage(
+        eventId,
+        event.eventType,
+        event.aiTriage as Triage | null,
+        fields,
+      );
+
+      const repo = event.repository;
       if (repo?.installation) {
         const rules = await this.prisma.rule.findMany({
           where: { repositoryId: repo.id, enabled: true },
@@ -72,6 +82,7 @@ export class EventProcessor {
             eventType: event.eventType,
             title: fields.title,
             issueNumber: this.issueNumber(event.eventType, payload),
+            triage,
           });
         }
       }
@@ -216,7 +227,48 @@ export class EventProcessor {
     return null;
   }
 
+  /**
+   * Runs AI triage once per event (idempotent via the stored aiTriage), for
+   * issues/PRs only. Non-fatal: a null result leaves the event untouched.
+   */
+  private async runTriage(
+    eventId: string,
+    eventType: string,
+    existing: Triage | null,
+    fields: { title: string; body: string },
+  ): Promise<Triage | null> {
+    if (existing) {
+      return existing;
+    }
+    if (eventType !== 'issues' && eventType !== 'pull_request') {
+      return null;
+    }
+    const triage = await this.ai.triage({
+      title: fields.title,
+      body: fields.body,
+    });
+    if (triage) {
+      await this.prisma.event.update({
+        where: { id: eventId },
+        data: { aiTriage: triage as unknown as Prisma.InputJsonValue },
+      });
+      await this.prisma.actionLog.create({
+        data: {
+          eventId,
+          type: 'ai_triage',
+          status: 'success',
+          detail: { ...triage },
+        },
+      });
+      this.emitter.emitChange(eventId);
+    }
+    return triage;
+  }
+
   private slackText(ctx: ActionContext, ruleName: string): string {
-    return `:robot_face: *${ctx.eventType}* on \`${ctx.fullName}\`\n> ${ctx.title}\nMatched rule: *${ruleName}*`;
+    const ai = ctx.triage
+      ? `\nAI: ${ctx.triage.summary} (label: ${ctx.triage.suggestedLabel}, priority: ${ctx.triage.priority})`
+      : '';
+    return `:robot_face: *${ctx.eventType}* on \`${ctx.fullName}\`\n> ${ctx.title}\nMatched rule: *${ruleName}*${ai}`;
   }
 }

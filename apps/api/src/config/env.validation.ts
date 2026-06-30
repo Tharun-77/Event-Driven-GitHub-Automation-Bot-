@@ -31,6 +31,10 @@ export const envSchema = z.object({
 
   // Slack
   SLACK_WEBHOOK_URL: z.string().optional(),
+
+  // Groq (AI triage)
+  GROQ_API_KEY: z.string().optional(),
+  GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
 });
 
 export type Env = z.infer<typeof envSchema>;

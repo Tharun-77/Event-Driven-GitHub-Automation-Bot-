@@ -10,9 +10,11 @@ describe('EventProcessor', () => {
   const writeback = { addLabel: jest.fn(), postComment: jest.fn() };
   const slack = { notify: jest.fn() };
   const emitter = { emitChange: jest.fn() };
+  const ai = { triage: jest.fn().mockResolvedValue(null) };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    ai.triage.mockResolvedValue(null);
     prisma.event.update.mockResolvedValue({});
     prisma.actionLog.create.mockResolvedValue({});
     processor = new EventProcessor(
@@ -20,6 +22,7 @@ describe('EventProcessor', () => {
       writeback as never,
       slack as never,
       emitter as never,
+      ai as never,
     );
   });
 
